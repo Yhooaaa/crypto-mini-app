@@ -1,0 +1,26 @@
+# Environment
+.env
+
+# Claude Code
+.claude/
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.venv/
+venv/
+env/
+
+# Database
+*.db
+*.sqlite3
+
+# Logs
+*.log
+
+# Node / webapp
+webapp/node_modules/
+webapp/dist/
+webapp/.env.local
