@@ -44,7 +44,7 @@ def main_menu_keyboard(lang: str) -> ReplyKeyboardMarkup:
             [
                 KeyboardButton(
                     text=t(lang, "open_app"),
-                    web_app=WebAppInfo(url=WEBAPP_URL),
+                    web_app=WebAppInfo(url=f"{WEBAPP_URL}?lang={lang}"),
                 )
             ],
             [

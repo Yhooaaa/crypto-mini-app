@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { BadgeCheck, SlidersHorizontal } from 'lucide-react'
+import { getT } from '../i18n'
 
 const CURRENCIES = ['USD', 'EUR', 'UAH', 'RUB']
 
@@ -55,7 +56,8 @@ const ADS = {
   ],
 }
 
-export default function P2P() {
+export default function P2P({ lang }) {
+  const t = getT(lang)
   const [side, setSide]         = useState('BUY')
   const [currency, setCurrency] = useState('USD')
 
@@ -76,7 +78,7 @@ export default function P2P() {
                 : 'text-[#848E9C]'
             }`}
           >
-            {s === 'BUY' ? 'Купить' : 'Продать'}
+            {s === 'BUY' ? t('buy') : t('sell')}
             {side === s && (
               <span
                 className={`absolute bottom-0 left-1/4 right-1/4 h-0.5 rounded-t ${
@@ -107,14 +109,14 @@ export default function P2P() {
         </div>
         <button className="flex items-center gap-1 px-2.5 py-1.5 bg-[#1E2026] border border-[#2B2F36] rounded text-[11px] text-[#848E9C] font-medium ml-auto flex-shrink-0 hover:text-[#EAECEF] transition-colors">
           <SlidersHorizontal size={11} />
-          Фильтр
+          {t('filter')}
         </button>
       </div>
 
       {/* Column headers */}
       <div className="flex items-center px-4 py-1.5 border-b border-[#2B2F36]">
-        <span className="flex-1 text-[10px] text-[#848E9C] font-medium uppercase tracking-wider">Мерчант / Методы</span>
-        <span className="text-[10px] text-[#848E9C] font-medium uppercase tracking-wider">Цена / Лимит</span>
+        <span className="flex-1 text-[10px] text-[#848E9C] font-medium uppercase tracking-wider">{t('merchant_methods')}</span>
+        <span className="text-[10px] text-[#848E9C] font-medium uppercase tracking-wider">{t('price_limit')}</span>
       </div>
 
       {/* Ad list */}
@@ -136,7 +138,7 @@ export default function P2P() {
                 </div>
                 <div className="flex items-center gap-2 mb-1.5">
                   <span className="text-[11px] text-[#848E9C] tabular-nums">
-                    {ad.trades.toLocaleString()} сд.
+                    {ad.trades.toLocaleString()} {t('trades_suffix')}
                   </span>
                   <span className="text-[#2B2F36]">·</span>
                   <span className={`text-[11px] font-medium tabular-nums ${
@@ -173,7 +175,7 @@ export default function P2P() {
                       : 'bg-[#CF304A] text-white hover:bg-[#c02c43]'
                   }`}
                 >
-                  {side === 'BUY' ? 'Купить' : 'Продать'}
+                  {side === 'BUY' ? t('buy') : t('sell')}
                 </button>
               </div>
             </div>

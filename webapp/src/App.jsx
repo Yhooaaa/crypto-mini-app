@@ -4,15 +4,19 @@ import { BarChart2, ArrowLeftRight, Wallet } from 'lucide-react'
 import Markets from './components/Markets'
 import P2P from './components/P2P'
 import WalletTab from './components/Wallet'
-
-const TABS = [
-  { id: 'markets', label: 'Рынки',    Icon: BarChart2,       Component: Markets   },
-  { id: 'p2p',     label: 'P2P',      Icon: ArrowLeftRight,  Component: P2P       },
-  { id: 'wallet',  label: 'Кошелёк',  Icon: Wallet,          Component: WalletTab },
-]
+import { detectLang, getT } from './i18n'
 
 export default function App() {
   const [active, setActive] = useState('markets')
+  const [lang]   = useState(detectLang)
+
+  const t = getT(lang)
+
+  const TABS = [
+    { id: 'markets', label: t('tab_markets'), Icon: BarChart2,      Component: Markets   },
+    { id: 'p2p',     label: t('tab_p2p'),     Icon: ArrowLeftRight, Component: P2P       },
+    { id: 'wallet',  label: t('tab_wallet'),  Icon: Wallet,         Component: WalletTab },
+  ]
 
   useEffect(() => {
     const tg = window.Telegram?.WebApp
@@ -24,7 +28,7 @@ export default function App() {
     }
   }, [])
 
-  const ActiveComponent = TABS.find(t => t.id === active)?.Component
+  const ActiveComponent = TABS.find(tab => tab.id === active)?.Component
 
   return (
     <div className="flex flex-col h-screen bg-[#0B0E11] text-[#EAECEF] overflow-hidden select-none">
@@ -37,7 +41,7 @@ export default function App() {
         </div>
         <div className="flex items-center gap-1.5">
           <span className="w-1.5 h-1.5 rounded-full bg-[#03A66D]" />
-          <span className="text-[11px] text-zinc-500 font-medium">Live</span>
+          <span className="text-[11px] text-zinc-500 font-medium">{t('live')}</span>
         </div>
       </header>
 
@@ -51,12 +55,12 @@ export default function App() {
             exit={{ opacity: 0 }}
             transition={{ duration: 0.08 }}
           >
-            {ActiveComponent && <ActiveComponent />}
+            {ActiveComponent && <ActiveComponent lang={lang} />}
           </motion.div>
         </AnimatePresence>
       </main>
 
-      {/* Bottom nav — flat, 1px top border, active indicator as top stripe */}
+      {/* Bottom nav */}
       <nav
         className="fixed bottom-0 left-0 right-0 flex border-t border-zinc-800 bg-[#0B0E11]"
         style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
@@ -69,7 +73,6 @@ export default function App() {
               onClick={() => setActive(id)}
               className="flex-1 flex flex-col items-center justify-center py-2.5 gap-0.5 relative transition-colors duration-100"
             >
-              {/* Active top indicator stripe */}
               {on && (
                 <span className="absolute top-0 left-1/4 right-1/4 h-[2px] bg-[#F0B90B] rounded-b-sm" />
               )}

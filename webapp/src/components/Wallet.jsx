@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { ArrowDown, ArrowUp, ArrowLeftRight, Eye, EyeOff, ChevronRight } from 'lucide-react'
+import { getT } from '../i18n'
 
 const ASSETS = [
   { symbol: 'USDT', name: 'Tether',   balance: 850.00,   usd: 850.00,  color: '#26A17B', change: +0.01, icon: 'https://assets.coingecko.com/coins/images/325/large/Tether.png' },
@@ -9,12 +10,6 @@ const ASSETS = [
 ]
 
 const TOTAL = ASSETS.reduce((s, a) => s + a.usd, 0)
-
-const ACTIONS = [
-  { label: 'Ввод',    Icon: ArrowDown      },
-  { label: 'Вывод',   Icon: ArrowUp        },
-  { label: 'Перевод', Icon: ArrowLeftRight  },
-]
 
 function AssetIcon({ symbol, color, icon }) {
   const [err, setErr] = useState(false)
@@ -41,8 +36,15 @@ function fmt(n, digits = 2) {
   return n.toLocaleString('en-US', { minimumFractionDigits: digits, maximumFractionDigits: digits })
 }
 
-export default function Wallet() {
+export default function Wallet({ lang }) {
+  const t = getT(lang)
   const [hidden, setHidden] = useState(false)
+
+  const ACTIONS = [
+    { label: t('deposit'),  Icon: ArrowDown      },
+    { label: t('withdraw'), Icon: ArrowUp        },
+    { label: t('transfer'), Icon: ArrowLeftRight  },
+  ]
 
   return (
     <div className="px-4 pt-4">
@@ -51,7 +53,7 @@ export default function Wallet() {
       <div className="bg-[#1E2026] border border-[#2B2F36] rounded-xl px-4 py-4 mb-3">
         <div className="flex items-center justify-between mb-2">
           <span className="text-[10px] text-[#848E9C] font-medium uppercase tracking-widest">
-            Общий баланс
+            {t('total_balance')}
           </span>
           <button
             onClick={() => setHidden(h => !h)}
@@ -67,7 +69,7 @@ export default function Wallet() {
 
         <div className="flex items-center gap-1.5 mt-1.5">
           <span className="text-xs text-[#03A66D] font-medium tabular-nums">+$12.40 (+3.2%)</span>
-          <span className="text-[11px] text-[#848E9C]">за 24ч</span>
+          <span className="text-[11px] text-[#848E9C]">{t('change_24h')}</span>
         </div>
       </div>
 
@@ -86,9 +88,9 @@ export default function Wallet() {
 
       {/* Assets header */}
       <div className="flex items-center justify-between py-2 border-b border-[#2B2F36] mb-0">
-        <span className="text-[10px] text-[#848E9C] font-medium uppercase tracking-widest">Мои активы</span>
+        <span className="text-[10px] text-[#848E9C] font-medium uppercase tracking-widest">{t('my_assets')}</span>
         <button className="flex items-center gap-0.5 text-[11px] text-[#848E9C] hover:text-[#EAECEF] transition-colors">
-          Все <ChevronRight size={11} />
+          {t('all')} <ChevronRight size={11} />
         </button>
       </div>
 

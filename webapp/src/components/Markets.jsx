@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { RefreshCw, X, WifiOff } from 'lucide-react'
+import { getT } from '../i18n'
 
 const SYMBOLS = ['BTCUSDT', 'ETHUSDT', 'SOLUSDT', 'TONUSDT', 'BNBUSDT', 'XRPUSDT']
 
@@ -69,13 +70,13 @@ function CoinIcon({ abbr, icon }) {
   )
 }
 
-function Skeleton() {
+function Skeleton({ t }) {
   return (
     <div>
       <div className="flex items-center px-4 py-1.5 border-b border-zinc-800">
-        <span className="flex-1 text-[10px] text-zinc-600 font-medium uppercase tracking-wider">Монета</span>
-        <span className="w-24 text-right text-[10px] text-zinc-600 font-medium uppercase tracking-wider">Цена</span>
-        <span className="w-[72px] text-right text-[10px] text-zinc-600 font-medium uppercase tracking-wider">24H%</span>
+        <span className="flex-1 text-[10px] text-zinc-600 font-medium uppercase tracking-wider">{t('col_coin')}</span>
+        <span className="w-24 text-right text-[10px] text-zinc-600 font-medium uppercase tracking-wider">{t('col_price')}</span>
+        <span className="w-[72px] text-right text-[10px] text-zinc-600 font-medium uppercase tracking-wider">{t('col_change')}</span>
       </div>
       {Array.from({ length: 8 }).map((_, i) => (
         <div key={i} className="flex items-center gap-2.5 px-4 py-2 border-b border-zinc-800/50">
@@ -96,22 +97,24 @@ function Skeleton() {
   )
 }
 
-function ErrorState({ onRetry }) {
+function ErrorState({ t, onRetry }) {
   return (
     <div className="flex flex-col items-center justify-center gap-3 px-4 pt-16 text-center">
       <WifiOff size={20} className="text-zinc-600" />
-      <p className="text-sm text-zinc-500">Нет соединения с сервером</p>
+      <p className="text-sm text-zinc-500">{t('no_connection')}</p>
       <button
         onClick={onRetry}
         className="mt-1 px-4 py-1.5 rounded-md border border-zinc-700 text-sm text-zinc-300 bg-zinc-900 hover:bg-zinc-800 transition-colors"
       >
-        Повторить
+        {t('retry')}
       </button>
     </div>
   )
 }
 
-export default function Markets() {
+export default function Markets({ lang }) {
+  const t = getT(lang)
+
   const [coins, setCoins]       = useState([])
   const [loading, setLoading]   = useState(true)
   const [error, setError]       = useState(false)
@@ -159,17 +162,17 @@ export default function Markets() {
     }
   }, [])
 
-  if (loading) return <Skeleton />
-  if (error)   return <ErrorState onRetry={() => refreshRef.current?.()} />
+  if (loading) return <Skeleton t={t} />
+  if (error)   return <ErrorState t={t} onRetry={() => refreshRef.current?.()} />
 
   return (
     <>
       {/* Column header */}
       <div className="flex items-center px-4 py-1.5 border-b border-zinc-800 bg-[#0B0E11] sticky top-0 z-10">
-        <span className="flex-1 text-[10px] text-zinc-600 font-medium uppercase tracking-wider">Монета</span>
-        <span className="w-24 text-right text-[10px] text-zinc-600 font-medium uppercase tracking-wider">Цена</span>
+        <span className="flex-1 text-[10px] text-zinc-600 font-medium uppercase tracking-wider">{t('col_coin')}</span>
+        <span className="w-24 text-right text-[10px] text-zinc-600 font-medium uppercase tracking-wider">{t('col_price')}</span>
         <div className="w-[72px] flex items-center justify-end gap-1.5">
-          <span className="text-[10px] text-zinc-600 font-medium uppercase tracking-wider">24H%</span>
+          <span className="text-[10px] text-zinc-600 font-medium uppercase tracking-wider">{t('col_change')}</span>
           <button
             onClick={() => refreshRef.current?.()}
             className="text-zinc-600 hover:text-zinc-300 transition-colors"
@@ -201,7 +204,7 @@ export default function Markets() {
                   <span className="text-zinc-500 font-normal text-[12px]">/USDT</span>
                 </p>
                 <p className="text-[11px] text-zinc-500 mt-0.5 leading-none">
-                  Vol {formatVolume(coin.quoteVolume)}
+                  {t('vol')} {formatVolume(coin.quoteVolume)}
                 </p>
               </div>
 
