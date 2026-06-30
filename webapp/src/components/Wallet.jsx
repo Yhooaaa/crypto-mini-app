@@ -4,29 +4,40 @@ import { ArrowDown, ArrowUp, ArrowLeftRight, Eye, EyeOff, ChevronRight, X } from
 import { getT } from '../i18n'
 
 const COIN_META = {
-  USDT: { name: 'Tether',   color: '#26A17B', icon: 'https://assets.coingecko.com/coins/images/325/large/Tether.png',           tradable: false },
-  BTC:  { name: 'Bitcoin',  color: '#F7931A', icon: 'https://assets.coingecko.com/coins/images/1/large/bitcoin.png',             tradable: true  },
-  ETH:  { name: 'Ethereum', color: '#627EEA', icon: 'https://assets.coingecko.com/coins/images/279/large/ethereum.png',          tradable: true  },
-  BNB:  { name: 'BNB',      color: '#F0B90B', icon: 'https://assets.coingecko.com/coins/images/825/large/binance-coin-logo.png', tradable: true  },
-  XRP:  { name: 'Ripple',   color: '#0085C0', icon: 'https://assets.coingecko.com/coins/images/44/large/xrp-symbol-white-128.png', tradable: true },
-  SOL:  { name: 'Solana',   color: '#9945FF', icon: 'https://assets.coingecko.com/coins/images/4128/large/solana.png',           tradable: true  },
-  TON:  { name: 'Toncoin',  color: '#0098EA', icon: 'https://cryptologos.cc/logos/toncoin-ton-logo.png',                        tradable: true  },
+  USDT: { name: 'Tether',   color: '#26A17B', icon: 'https://assets.coingecko.com/coins/images/325/large/Tether.png',             tradable: false },
+  BTC:  { name: 'Bitcoin',  color: '#F7931A', icon: 'https://assets.coingecko.com/coins/images/1/large/bitcoin.png',               tradable: true  },
+  ETH:  { name: 'Ethereum', color: '#627EEA', icon: 'https://assets.coingecko.com/coins/images/279/large/ethereum.png',            tradable: true  },
+  BNB:  { name: 'BNB',      color: '#F0B90B', icon: 'https://assets.coingecko.com/coins/images/825/large/binance-coin-logo.png',   tradable: true  },
+  XRP:  { name: 'Ripple',   color: '#0085C0', icon: 'https://assets.coingecko.com/coins/images/44/large/xrp-symbol-white-128.png', tradable: true  },
+  SOL:  { name: 'Solana',   color: '#9945FF', icon: 'https://assets.coingecko.com/coins/images/4128/large/solana.png',             tradable: true  },
+  TON:  { name: 'Toncoin',  color: '#0098EA', icon: 'https://cryptologos.cc/logos/toncoin-ton-logo.png',                          tradable: true  },
 }
 
 const BINANCE_SYMS = ['BTCUSDT', 'ETHUSDT', 'BNBUSDT', 'XRPUSDT', 'SOLUSDT', 'TONUSDT']
-const API_URL = import.meta.env.VITE_API_URL ?? ''
+const API_URL      = import.meta.env.VITE_API_URL ?? ''
 
+// ── localStorage demo fallback ────────────────────────────────────────────────
+const DEMO_KEY = 'fittex_balances'
+const INIT_BAL = { usdt: 10000, btc: 0, eth: 0, bnb: 0, xrp: 0, sol: 0, ton: 0 }
+
+function loadLocal() {
+  try { return JSON.parse(localStorage.getItem(DEMO_KEY)) ?? { ...INIT_BAL } }
+  catch { return { ...INIT_BAL } }
+}
+function saveLocal(b) { localStorage.setItem(DEMO_KEY, JSON.stringify(b)) }
+
+// ── Formatters ─────────────────────────────────────────────────────────────────
 function fmt(n, digits = 2) {
   return n.toLocaleString('en-US', { minimumFractionDigits: digits, maximumFractionDigits: digits })
 }
-
 function fmtCoin(n) {
-  if (n === 0) return '0.00'
-  if (n >= 1)   return fmt(n, 4)
-  if (n >= 0.0001) return n.toFixed(6)
+  if (n === 0)        return '0.00'
+  if (n >= 1)         return fmt(n, 4)
+  if (n >= 0.0001)    return n.toFixed(6)
   return n.toFixed(8)
 }
 
+// ── AssetIcon ─────────────────────────────────────────────────────────────────
 function AssetIcon({ symbol, color, icon }) {
   const [err, setErr] = useState(false)
   return (
@@ -43,22 +54,21 @@ function AssetIcon({ symbol, color, icon }) {
   )
 }
 
-// ─── Trade modal ─────────────────────────────────────────────────────────────
-
+// ── Trade modal ───────────────────────────────────────────────────────────────
 function TradeModal({ coin, prices, balances, userId, t, onClose, onUpdate }) {
   const [side, setSide]       = useState('buy')
   const [amountStr, setAmt]   = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError]     = useState(null)
 
-  const price    = prices[coin.symbol + 'USDT'] ?? 0
-  const amount   = parseFloat(amountStr) || 0
-  const coinQty  = price > 0 ? amount / price : 0
+  const price   = prices[coin.symbol + 'USDT'] ?? 0
+  const amount  = parseFloat(amountStr) || 0
+  const coinQty = price > 0 ? amount / price : 0
 
-  const usdtBal  = balances?.usdt  ?? 0
-  const coinBal  = balances?.[coin.symbol.toLowerCase()] ?? 0
-  const maxBuy   = usdtBal
-  const maxSell  = coinBal * price
+  const usdtBal = balances?.usdt  ?? 0
+  const coinBal = balances?.[coin.symbol.toLowerCase()] ?? 0
+  const maxBuy  = usdtBal
+  const maxSell = coinBal * price
 
   const setPercent = (pct) => {
     const max = side === 'buy' ? maxBuy : maxSell
@@ -67,31 +77,41 @@ function TradeModal({ coin, prices, balances, userId, t, onClose, onUpdate }) {
   }
 
   const handleConfirm = async () => {
-    if (!amount || !price || !userId || !API_URL) {
-      setError(!API_URL || !userId ? 'network_error' : null)
-      return
-    }
+    if (!amount || !price) return
     setLoading(true)
     setError(null)
+
+    // ── Demo mode: no API → trade locally ──────────────────────────────────
+    if (!API_URL || !userId) {
+      const newBal  = { ...balances }
+      const coinKey = coin.symbol.toLowerCase()
+      const qty     = amount / price
+      if (side === 'buy') {
+        if (newBal.usdt < amount) { setError('insufficient_usdt'); setLoading(false); return }
+        newBal.usdt       -= amount
+        newBal[coinKey]    = (newBal[coinKey] ?? 0) + qty
+      } else {
+        if ((newBal[coinKey] ?? 0) < qty) { setError('insufficient_coin'); setLoading(false); return }
+        newBal.usdt       += amount
+        newBal[coinKey]   -= qty
+      }
+      saveLocal(newBal)
+      onUpdate(newBal)
+      setLoading(false)
+      onClose()
+      return
+    }
+
+    // ── API mode: save to bot DB ────────────────────────────────────────────
     try {
       const res  = await fetch(`${API_URL}/api/trade`, {
-        method: 'POST',
+        method:  'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          user_id:    userId,
-          side,
-          symbol:     coin.symbol.toLowerCase(),
-          amount_usdt: amount,
-          price,
-        }),
+        body:    JSON.stringify({ user_id: userId, side, symbol: coin.symbol.toLowerCase(), amount_usdt: amount, price }),
       })
       const data = await res.json()
-      if (res.ok) {
-        onUpdate(data)
-        onClose()
-      } else {
-        setError(data.error ?? 'network_error')
-      }
+      if (res.ok) { onUpdate(data); onClose() }
+      else          setError(data.error ?? 'network_error')
     } catch {
       setError('network_error')
     } finally {
@@ -126,7 +146,6 @@ function TradeModal({ coin, prices, balances, userId, t, onClose, onUpdate }) {
       </div>
 
       <div className="px-4 pt-4 pb-6 space-y-4">
-
         {/* Buy / Sell tabs */}
         <div className="flex bg-[#0B0E11] rounded-lg p-0.5">
           {['buy', 'sell'].map(s => (
@@ -160,7 +179,6 @@ function TradeModal({ coin, prices, balances, userId, t, onClose, onUpdate }) {
               className="flex-1 bg-transparent text-white text-sm font-semibold outline-none tabular-nums placeholder:text-[#848E9C]/40"
             />
           </div>
-          {/* Quick % buttons */}
           <div className="flex gap-1.5 mt-2">
             {[25, 50, 75, 100].map(pct => (
               <button
@@ -181,8 +199,7 @@ function TradeModal({ coin, prices, balances, userId, t, onClose, onUpdate }) {
             <span className="text-white font-medium tabular-nums">
               {side === 'buy'
                 ? `$${fmt(usdtBal)} USDT`
-                : `${fmtCoin(coinBal)} ${coin.symbol}`
-              }
+                : `${fmtCoin(coinBal)} ${coin.symbol}`}
             </span>
           </div>
           <div className="flex justify-between text-sm">
@@ -193,59 +210,62 @@ function TradeModal({ coin, prices, balances, userId, t, onClose, onUpdate }) {
           </div>
         </div>
 
-        {/* Error */}
-        {error && (
-          <p className="text-xs text-[#CF304A] text-center">{t(error)}</p>
-        )}
+        {error && <p className="text-xs text-[#CF304A] text-center">{t(error)}</p>}
 
-        {/* Confirm button */}
         <button
           onClick={handleConfirm}
           disabled={!canConfirm}
           className={`w-full py-3 rounded-xl font-bold text-sm text-white transition-all active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed ${
-            side === 'buy'
-              ? 'bg-[#03A66D] hover:bg-[#029c65]'
-              : 'bg-[#CF304A] hover:bg-[#c02c43]'
+            side === 'buy' ? 'bg-[#03A66D] hover:bg-[#029c65]' : 'bg-[#CF304A] hover:bg-[#c02c43]'
           }`}
         >
-          {loading ? '...' : `${t('confirm')}`}
+          {loading ? '...' : t('confirm')}
         </button>
       </div>
     </motion.div>
   )
 }
 
-// ─── Main Wallet component ────────────────────────────────────────────────────
-
+// ── Main Wallet ───────────────────────────────────────────────────────────────
 export default function Wallet({ lang, userId }) {
   const t = getT(lang)
 
   const [hidden,     setHidden]     = useState(false)
   const [balances,   setBalances]   = useState(null)
-  const [prices,     setPrices]     = useState({})
+  const [prices,     setPrices]     = useState({})   // { BTCUSDT: number }
+  const [changes,    setChanges]    = useState({})   // { BTCUSDT: number } 24h %
   const [tradeModal, setTradeModal] = useState(null)
 
-  // Fetch balances from bot API
+  // Load balances: try API first, fall back to localStorage
   useEffect(() => {
-    if (!userId || !API_URL) return
-    fetch(`${API_URL}/api/balance?user_id=${userId}`)
-      .then(r => r.json())
-      .then(setBalances)
-      .catch(() => {})
+    if (API_URL && userId) {
+      fetch(`${API_URL}/api/balance?user_id=${userId}`)
+        .then(r => r.json())
+        .then(data => setBalances(data.error ? loadLocal() : data))
+        .catch(() => setBalances(loadLocal()))
+    } else {
+      setBalances(loadLocal())
+    }
   }, [userId])
 
-  // Fetch live prices from Binance every 15 s
+  // Live prices + 24h change from Binance, polled every 15 s
   useEffect(() => {
     const ctrl = new AbortController()
     const load = async () => {
       try {
         const r = await fetch(
-          `https://api.binance.com/api/v3/ticker/price?symbols=${encodeURIComponent(JSON.stringify(BINANCE_SYMS))}`,
+          `https://api.binance.com/api/v3/ticker/24hr?symbols=${encodeURIComponent(JSON.stringify(BINANCE_SYMS))}`,
           { signal: ctrl.signal }
         )
         const d = await r.json()
-        if (Array.isArray(d))
-          setPrices(Object.fromEntries(d.map(x => [x.symbol, parseFloat(x.price)])))
+        if (!Array.isArray(d)) return
+        const p = {}, c = {}
+        d.forEach(x => {
+          p[x.symbol] = parseFloat(x.lastPrice)
+          c[x.symbol] = parseFloat(x.priceChangePercent)
+        })
+        setPrices(p)
+        setChanges(c)
       } catch {}
     }
     load()
@@ -253,11 +273,11 @@ export default function Wallet({ lang, userId }) {
     return () => { ctrl.abort(); clearInterval(timer) }
   }, [])
 
-  // Build asset rows from live data
   const assets = Object.entries(COIN_META).map(([sym, meta]) => {
-    const bal   = balances ? (balances[sym.toLowerCase()] ?? 0) : 0
-    const price = sym === 'USDT' ? 1 : (prices[sym + 'USDT'] ?? 0)
-    return { symbol: sym, ...meta, balance: bal, price, usd: bal * price }
+    const bal    = balances ? (balances[sym.toLowerCase()] ?? 0) : 0
+    const price  = sym === 'USDT' ? 1 : (prices[sym + 'USDT']  ?? 0)
+    const change = sym === 'USDT' ? 0 : (changes[sym + 'USDT'] ?? 0)
+    return { symbol: sym, ...meta, balance: bal, price, change, usd: bal * price }
   })
 
   const total = assets.reduce((s, a) => s + a.usd, 0)
@@ -286,7 +306,9 @@ export default function Wallet({ lang, userId }) {
         </div>
 
         <div className="text-[28px] font-bold text-[#EAECEF] tracking-tight leading-none">
-          {hidden ? '••••••' : `$${fmt(total)}`}
+          {hidden ? '••••••' : balances ? `$${fmt(total)}` : (
+            <span className="text-zinc-600 animate-pulse text-xl">загрузка...</span>
+          )}
         </div>
 
         <p className="text-[10px] text-[#848E9C] mt-2">{t('demo_notice')}</p>
@@ -315,37 +337,49 @@ export default function Wallet({ lang, userId }) {
 
       {/* Asset rows */}
       <div className="pb-4">
-        {assets.map((asset) => (
-          <div
-            key={asset.symbol}
-            className="flex items-center gap-3 py-2.5 border-b border-[#2B2F36]/60 -mx-4 px-4"
-          >
-            <AssetIcon symbol={asset.symbol} color={asset.color} icon={asset.icon} />
+        {assets.map((asset) => {
+          const isPos = asset.change >= 0
+          return (
+            <div
+              key={asset.symbol}
+              className="flex items-center gap-3 py-2.5 border-b border-[#2B2F36]/60 -mx-4 px-4"
+            >
+              <AssetIcon symbol={asset.symbol} color={asset.color} icon={asset.icon} />
 
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-semibold text-[#EAECEF] leading-tight">{asset.symbol}</p>
-              <p className="text-[11px] text-[#848E9C] mt-0.5">{asset.name}</p>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-semibold text-[#EAECEF] leading-tight">{asset.symbol}</p>
+                <p className="text-[11px] text-[#848E9C] mt-0.5">{asset.name}</p>
+              </div>
+
+              {/* 24h price change */}
+              {asset.symbol !== 'USDT' && (
+                <span className={`text-[11px] font-semibold tabular-nums px-1.5 py-0.5 rounded-sm flex-shrink-0 ${
+                  isPos ? 'bg-[#03A66D]/10 text-[#03A66D]' : 'bg-[#CF304A]/10 text-[#CF304A]'
+                }`}>
+                  {isPos ? '+' : ''}{asset.change.toFixed(2)}%
+                </span>
+              )}
+
+              {asset.tradable && (
+                <button
+                  onClick={() => setTradeModal(asset)}
+                  className="px-2.5 py-1 text-[11px] font-semibold border border-[#F0B90B]/40 text-[#F0B90B] rounded hover:bg-[#F0B90B]/10 transition-colors flex-shrink-0"
+                >
+                  {t('trade')}
+                </button>
+              )}
+
+              <div className="text-right">
+                <p className="text-sm font-semibold text-[#EAECEF] tabular-nums leading-tight">
+                  {hidden ? '•••' : fmtCoin(asset.balance)}
+                </p>
+                <p className="text-[11px] text-[#848E9C] tabular-nums mt-0.5">
+                  {hidden ? '•••' : `$${fmt(asset.usd)}`}
+                </p>
+              </div>
             </div>
-
-            {asset.tradable && (
-              <button
-                onClick={() => setTradeModal(asset)}
-                className="px-2.5 py-1 text-[11px] font-semibold border border-[#F0B90B]/40 text-[#F0B90B] rounded hover:bg-[#F0B90B]/10 transition-colors flex-shrink-0"
-              >
-                {t('trade')}
-              </button>
-            )}
-
-            <div className="text-right">
-              <p className="text-sm font-semibold text-[#EAECEF] tabular-nums leading-tight">
-                {hidden ? '•••' : fmtCoin(asset.balance)}
-              </p>
-              <p className="text-[11px] text-[#848E9C] tabular-nums mt-0.5">
-                {hidden ? '•••' : `$${fmt(asset.usd)}`}
-              </p>
-            </div>
-          </div>
-        ))}
+          )
+        })}
       </div>
 
       {/* Trade modal with backdrop */}
@@ -368,7 +402,7 @@ export default function Wallet({ lang, userId }) {
               userId={userId}
               t={t}
               onClose={() => setTradeModal(null)}
-              onUpdate={(newBal) => setBalances(newBal)}
+              onUpdate={setBalances}
             />
           </>
         )}
