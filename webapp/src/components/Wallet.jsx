@@ -248,6 +248,11 @@ export default function Wallet({ lang, userId }) {
     }
   }, [userId])
 
+  // Persist balances to localStorage on every change (survives app close / API downtime)
+  useEffect(() => {
+    if (balances) saveLocal(balances)
+  }, [balances])
+
   // Live prices + 24h change from Binance, polled every 15 s
   useEffect(() => {
     const ctrl = new AbortController()
