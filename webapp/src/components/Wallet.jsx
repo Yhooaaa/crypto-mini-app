@@ -2,10 +2,10 @@ import { useState } from 'react'
 import { ArrowDown, ArrowUp, ArrowLeftRight, Eye, EyeOff, ChevronRight } from 'lucide-react'
 
 const ASSETS = [
-  { symbol: 'USDT', name: 'Tether',   balance: 850.00,   usd: 850.00,  color: '#26A17B', change: +0.01 },
-  { symbol: 'BTC',  name: 'Bitcoin',  balance: 0.004213, usd: 285.50,  color: '#F7931A', change: +2.34 },
-  { symbol: 'TON',  name: 'Toncoin',  balance: 45.32,    usd: 110.00,  color: '#0098EA', change: -1.12 },
-  { symbol: 'ETH',  name: 'Ethereum', balance: 0.01840,  usd: 58.20,   color: '#627EEA', change: +1.08 },
+  { symbol: 'USDT', name: 'Tether',   balance: 850.00,   usd: 850.00,  color: '#26A17B', change: +0.01, icon: 'https://assets.coingecko.com/coins/images/325/large/Tether.png' },
+  { symbol: 'BTC',  name: 'Bitcoin',  balance: 0.004213, usd: 285.50,  color: '#F7931A', change: +2.34, icon: 'https://assets.coingecko.com/coins/images/1/large/bitcoin.png' },
+  { symbol: 'TON',  name: 'Toncoin',  balance: 45.32,    usd: 110.00,  color: '#0098EA', change: -1.12, icon: 'https://assets.coingecko.com/coins/images/17980/large/ton_token.png' },
+  { symbol: 'ETH',  name: 'Ethereum', balance: 0.01840,  usd: 58.20,   color: '#627EEA', change: +1.08, icon: 'https://assets.coingecko.com/coins/images/279/large/ethereum.png' },
 ]
 
 const TOTAL = ASSETS.reduce((s, a) => s + a.usd, 0)
@@ -16,13 +16,23 @@ const ACTIONS = [
   { label: 'Перевод', Icon: ArrowLeftRight  },
 ]
 
-function AssetIcon({ symbol, color }) {
+function AssetIcon({ symbol, color, icon }) {
+  const [err, setErr] = useState(false)
   return (
     <div
-      className="w-8 h-8 rounded-full flex items-center justify-center text-[10px] font-bold flex-shrink-0"
+      className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 overflow-hidden"
       style={{ background: `${color}18`, border: `1px solid ${color}28` }}
     >
-      <span style={{ color }}>{symbol.slice(0, 3)}</span>
+      {!err && icon ? (
+        <img
+          src={icon}
+          alt={symbol}
+          className="w-6 h-6 object-contain"
+          onError={() => setErr(true)}
+        />
+      ) : (
+        <span className="text-[10px] font-bold" style={{ color }}>{symbol.slice(0, 3)}</span>
+      )}
     </div>
   )
 }
@@ -95,7 +105,7 @@ export default function Wallet() {
               key={asset.symbol}
               className="flex items-center gap-3 py-2.5 border-b border-[#2B2F36]/60 hover:bg-[#1E2026] active:bg-[#2B2F36] transition-colors cursor-pointer -mx-4 px-4"
             >
-              <AssetIcon symbol={asset.symbol} color={asset.color} />
+              <AssetIcon symbol={asset.symbol} color={asset.color} icon={asset.icon} />
 
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-semibold text-[#EAECEF] leading-tight">{asset.symbol}</p>
