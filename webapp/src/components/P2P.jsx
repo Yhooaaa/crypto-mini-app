@@ -1,6 +1,5 @@
 import { useState } from 'react'
-import { motion } from 'framer-motion'
-import { BadgeCheck, ChevronDown, SlidersHorizontal } from 'lucide-react'
+import { BadgeCheck, SlidersHorizontal } from 'lucide-react'
 
 const CURRENCIES = ['USD', 'EUR', 'UAH', 'RUB']
 
@@ -65,94 +64,90 @@ export default function P2P() {
   return (
     <div className="flex flex-col">
 
-      {/* Buy / Sell toggle */}
-      <div className="flex mx-4 mt-4 p-1 bg-slate-800/50 rounded-xl gap-1">
+      {/* Buy / Sell tab strip */}
+      <div className="flex border-b border-[#2B2F36]">
         {['BUY', 'SELL'].map(s => (
-          <motion.button
+          <button
             key={s}
             onClick={() => setSide(s)}
-            className={`flex-1 py-2 text-sm font-semibold rounded-lg transition-all relative overflow-hidden ${
-              side === s ? '' : 'text-slate-500'
+            className={`flex-1 py-2.5 text-sm font-bold relative transition-colors ${
+              side === s
+                ? s === 'BUY' ? 'text-[#03A66D]' : 'text-[#CF304A]'
+                : 'text-[#848E9C]'
             }`}
-            style={{ zIndex: 1 }}
           >
+            {s === 'BUY' ? 'Купить' : 'Продать'}
             {side === s && (
-              <motion.span
-                layoutId="sideBg"
-                className={`absolute inset-0 rounded-lg ${s === 'BUY' ? 'bg-emerald-500/15' : 'bg-red-500/15'}`}
-                style={{ zIndex: -1 }}
+              <span
+                className={`absolute bottom-0 left-1/4 right-1/4 h-0.5 rounded-t ${
+                  s === 'BUY' ? 'bg-[#03A66D]' : 'bg-[#CF304A]'
+                }`}
               />
             )}
-            <span className={
-              side === s
-                ? s === 'BUY' ? 'text-emerald-400' : 'text-red-400'
-                : 'text-slate-500'
-            }>
-              {s === 'BUY' ? 'Купить' : 'Продать'}
-            </span>
-          </motion.button>
+          </button>
         ))}
       </div>
 
       {/* Filters */}
-      <div className="flex items-center gap-2 px-4 mt-3 pb-0.5">
-        <div className="flex items-center gap-1 p-1 bg-slate-800/50 rounded-lg">
+      <div className="flex items-center gap-2 px-4 py-2 border-b border-[#2B2F36]">
+        <div className="flex items-center bg-[#1E2026] rounded border border-[#2B2F36] p-0.5 gap-0.5">
           {CURRENCIES.map(c => (
             <button
               key={c}
               onClick={() => setCurrency(c)}
               className={`px-2.5 py-1 rounded text-[11px] font-semibold transition-all ${
                 currency === c
-                  ? 'bg-slate-700 text-white'
-                  : 'text-slate-500 hover:text-slate-300'
+                  ? 'bg-[#2B2F36] text-[#EAECEF]'
+                  : 'text-[#848E9C] hover:text-[#EAECEF]'
               }`}
             >
               {c}
             </button>
           ))}
         </div>
-        <button className="flex items-center gap-1 px-3 py-1.5 bg-slate-800/50 rounded-lg text-[11px] text-slate-400 font-medium ml-auto flex-shrink-0">
+        <button className="flex items-center gap-1 px-2.5 py-1.5 bg-[#1E2026] border border-[#2B2F36] rounded text-[11px] text-[#848E9C] font-medium ml-auto flex-shrink-0 hover:text-[#EAECEF] transition-colors">
           <SlidersHorizontal size={11} />
           Фильтр
         </button>
       </div>
 
-      {/* Column labels */}
-      <div className="flex items-center px-4 mt-3 mb-1">
-        <span className="flex-1 text-[10px] text-slate-600 uppercase tracking-widest font-medium">Мерчант</span>
-        <span className="text-[10px] text-slate-600 uppercase tracking-widest font-medium text-right mr-2">Цена</span>
+      {/* Column headers */}
+      <div className="flex items-center px-4 py-1.5 border-b border-[#2B2F36]">
+        <span className="flex-1 text-[10px] text-[#848E9C] font-medium uppercase tracking-wider">Мерчант / Методы</span>
+        <span className="text-[10px] text-[#848E9C] font-medium uppercase tracking-wider">Цена / Лимит</span>
       </div>
 
       {/* Ad list */}
-      <div className="px-4 space-y-2 pb-4">
-        {ads.map((ad, i) => (
-          <motion.div
+      <div>
+        {ads.map((ad) => (
+          <div
             key={ad.id}
-            initial={{ opacity: 0, y: 5 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: i * 0.045, duration: 0.2 }}
-            className="bg-slate-900/60 border border-slate-800/80 rounded-xl p-3.5"
+            className="px-4 py-3 border-b border-[#2B2F36]/60 hover:bg-[#1E2026] transition-colors"
           >
-            <div className="flex items-start gap-2">
+            <div className="flex items-start gap-3">
 
               {/* Left: merchant info */}
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-1.5 mb-0.5">
-                  <span className="text-sm font-semibold text-white">{ad.name}</span>
+                  <span className="text-sm font-semibold text-[#EAECEF]">{ad.name}</span>
                   {ad.verified && (
-                    <BadgeCheck size={13} className="text-blue-400 flex-shrink-0" />
+                    <BadgeCheck size={12} className="text-[#F0B90B] flex-shrink-0" />
                   )}
                 </div>
-                <div className="flex items-center gap-2.5">
-                  <span className="text-[11px] text-slate-500 tabular-nums">{ad.trades.toLocaleString()} сделок</span>
-                  <span className="text-slate-700">·</span>
+                <div className="flex items-center gap-2 mb-1.5">
+                  <span className="text-[11px] text-[#848E9C] tabular-nums">
+                    {ad.trades.toLocaleString()} сд.
+                  </span>
+                  <span className="text-[#2B2F36]">·</span>
                   <span className={`text-[11px] font-medium tabular-nums ${
-                    ad.completion >= 99 ? 'text-emerald-400' : 'text-slate-400'
-                  }`}>{ad.completion}%</span>
+                    ad.completion >= 99 ? 'text-[#03A66D]' : 'text-[#848E9C]'
+                  }`}>
+                    {ad.completion}%
+                  </span>
                 </div>
-                <div className="flex gap-1 mt-2 flex-wrap">
+                <div className="flex gap-1 flex-wrap">
                   {ad.banks.map(b => (
-                    <span key={b} className="text-[10px] px-1.5 py-0.5 bg-slate-800 border border-slate-700/50 rounded text-slate-400">
+                    <span key={b} className="text-[10px] px-1.5 py-0.5 bg-[#2B2F36] rounded text-[#848E9C]">
                       {b}
                     </span>
                   ))}
@@ -160,35 +155,29 @@ export default function P2P() {
               </div>
 
               {/* Right: price + action */}
-              <div className="flex flex-col items-end gap-2.5 flex-shrink-0">
+              <div className="flex flex-col items-end gap-2 flex-shrink-0">
                 <div className="text-right">
-                  <p className="text-base font-bold text-white tabular-nums leading-tight">
+                  <p className={`text-base font-bold tabular-nums leading-tight ${
+                    side === 'BUY' ? 'text-[#03A66D]' : 'text-[#CF304A]'
+                  }`}>
                     {ad.price.toFixed(4)}
                   </p>
-                  <p className="text-[11px] text-slate-500 tabular-nums mt-0.5">
-                    {currency}
-                  </p>
-                </div>
-                <div className="text-right mb-0.5">
-                  <p className="text-[11px] text-slate-500 tabular-nums">
+                  <p className="text-[11px] text-[#848E9C] tabular-nums mt-0.5">
                     {ad.min.toLocaleString()}–{ad.max.toLocaleString()} {currency}
-                  </p>
-                  <p className="text-[11px] text-slate-600 tabular-nums">
-                    Доступно: {ad.available} USDT
                   </p>
                 </div>
                 <button
-                  className={`px-4 py-1.5 rounded-lg text-xs font-semibold transition-all active:scale-95 ${
+                  className={`px-4 py-1.5 rounded text-xs font-bold transition-all active:scale-95 ${
                     side === 'BUY'
-                      ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/20 hover:bg-emerald-500/25'
-                      : 'bg-red-500/15 text-red-400 border border-red-500/20 hover:bg-red-500/25'
+                      ? 'bg-[#03A66D] text-white hover:bg-[#029c65]'
+                      : 'bg-[#CF304A] text-white hover:bg-[#c02c43]'
                   }`}
                 >
                   {side === 'BUY' ? 'Купить' : 'Продать'}
                 </button>
               </div>
             </div>
-          </motion.div>
+          </div>
         ))}
       </div>
     </div>

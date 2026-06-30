@@ -1,16 +1,40 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { RefreshCw, X, TrendingUp, TrendingDown } from 'lucide-react'
+import { RefreshCw, X, WifiOff } from 'lucide-react'
 
 const SYMBOLS = ['BTCUSDT', 'ETHUSDT', 'SOLUSDT', 'TONUSDT', 'BNBUSDT', 'XRPUSDT']
 
 const COIN_META = {
-  BTCUSDT: { name: 'Bitcoin',   abbr: 'BTC', color: '#F7931A' },
-  ETHUSDT: { name: 'Ethereum',  abbr: 'ETH', color: '#627EEA' },
-  SOLUSDT: { name: 'Solana',    abbr: 'SOL', color: '#9945FF' },
-  TONUSDT: { name: 'Toncoin',   abbr: 'TON', color: '#0098EA' },
-  BNBUSDT: { name: 'BNB',       abbr: 'BNB', color: '#F0B90B' },
-  XRPUSDT: { name: 'Ripple',    abbr: 'XRP', color: '#346AA9' },
+  BTCUSDT: {
+    name: 'Bitcoin',
+    abbr: 'BTC',
+    icon: 'https://assets.coingecko.com/coins/images/1/large/bitcoin.png',
+  },
+  ETHUSDT: {
+    name: 'Ethereum',
+    abbr: 'ETH',
+    icon: 'https://assets.coingecko.com/coins/images/279/large/ethereum.png',
+  },
+  SOLUSDT: {
+    name: 'Solana',
+    abbr: 'SOL',
+    icon: 'https://assets.coingecko.com/coins/images/4128/large/solana.png',
+  },
+  TONUSDT: {
+    name: 'Toncoin',
+    abbr: 'TON',
+    icon: 'https://assets.coingecko.com/coins/images/17980/large/ton_token.png',
+  },
+  BNBUSDT: {
+    name: 'BNB',
+    abbr: 'BNB',
+    icon: 'https://assets.coingecko.com/coins/images/825/large/binance-coin-logo.png',
+  },
+  XRPUSDT: {
+    name: 'Ripple',
+    abbr: 'XRP',
+    icon: 'https://assets.coingecko.com/coins/images/44/large/xrp-symbol-white-128.png',
+  },
 }
 
 function formatPrice(price) {
@@ -20,23 +44,69 @@ function formatPrice(price) {
   return `$${n.toFixed(5)}`
 }
 
-function CoinIcon({ abbr, color }) {
+function formatVolume(quoteVolume) {
+  const v = parseFloat(quoteVolume)
+  if (v >= 1_000_000_000) return `$${(v / 1_000_000_000).toFixed(2)}B`
+  if (v >= 1_000_000)     return `$${(v / 1_000_000).toFixed(1)}M`
+  return `$${(v / 1000).toFixed(0)}K`
+}
+
+function CoinIcon({ abbr, icon }) {
+  const [err, setErr] = useState(false)
   return (
-    <div
-      className="w-9 h-9 rounded-full flex items-center justify-center text-[11px] font-bold flex-shrink-0"
-      style={{ background: `${color}1a`, border: `1.5px solid ${color}35` }}
-    >
-      <span style={{ color }}>{abbr}</span>
+    <div className="w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 overflow-hidden bg-zinc-800">
+      {!err && icon ? (
+        <img
+          src={icon}
+          alt={abbr}
+          className="w-6 h-6 object-contain"
+          onError={() => setErr(true)}
+        />
+      ) : (
+        <span className="text-[9px] font-bold text-zinc-400 tracking-tight">{abbr.slice(0, 3)}</span>
+      )}
     </div>
   )
 }
 
 function Skeleton() {
   return (
-    <div className="space-y-1 px-4 pt-4">
-      {Array.from({ length: 6 }).map((_, i) => (
-        <div key={i} className="h-[60px] rounded-xl bg-slate-800/40 animate-pulse" />
+    <div>
+      <div className="flex items-center px-4 py-1.5 border-b border-zinc-800">
+        <span className="flex-1 text-[10px] text-zinc-600 font-medium uppercase tracking-wider">Монета</span>
+        <span className="w-24 text-right text-[10px] text-zinc-600 font-medium uppercase tracking-wider">Цена</span>
+        <span className="w-[72px] text-right text-[10px] text-zinc-600 font-medium uppercase tracking-wider">24H%</span>
+      </div>
+      {Array.from({ length: 8 }).map((_, i) => (
+        <div key={i} className="flex items-center gap-2.5 px-4 py-2 border-b border-zinc-800/50">
+          <div className="w-7 h-7 rounded-full bg-zinc-800/80 animate-pulse flex-shrink-0" />
+          <div className="flex-1 space-y-1.5">
+            <div className="h-2.5 w-14 bg-zinc-800/80 rounded-sm animate-pulse" />
+            <div className="h-2 w-10 bg-zinc-800/50 rounded-sm animate-pulse" />
+          </div>
+          <div className="w-24 flex justify-end">
+            <div className="h-2.5 w-16 bg-zinc-800/80 rounded-sm animate-pulse" />
+          </div>
+          <div className="w-[72px] flex justify-end">
+            <div className="h-2.5 w-11 bg-zinc-800/80 rounded-sm animate-pulse" />
+          </div>
+        </div>
       ))}
+    </div>
+  )
+}
+
+function ErrorState({ onRetry }) {
+  return (
+    <div className="flex flex-col items-center justify-center gap-3 px-4 pt-16 text-center">
+      <WifiOff size={20} className="text-zinc-600" />
+      <p className="text-sm text-zinc-500">Нет соединения с сервером</p>
+      <button
+        onClick={onRetry}
+        className="mt-1 px-4 py-1.5 rounded-md border border-zinc-700 text-sm text-zinc-300 bg-zinc-900 hover:bg-zinc-800 transition-colors"
+      >
+        Повторить
+      </button>
     </div>
   )
 }
@@ -44,97 +114,123 @@ function Skeleton() {
 export default function Markets() {
   const [coins, setCoins]       = useState([])
   const [loading, setLoading]   = useState(true)
+  const [error, setError]       = useState(false)
   const [spinning, setSpinning] = useState(false)
   const [selected, setSelected] = useState(null)
+  const refreshRef = useRef(null)
 
-  const fetchPrices = useCallback(async (silent = false) => {
-    if (silent) setSpinning(true)
-    else setLoading(true)
-    try {
-      const res  = await fetch(
-        `https://api.binance.com/api/v3/ticker/24hr?symbols=${encodeURIComponent(JSON.stringify(SYMBOLS))}`
-      )
-      const data = await res.json()
-      if (Array.isArray(data)) setCoins(data)
-    } catch { /* keep stale */ } finally {
-      setLoading(false)
-      setSpinning(false)
+  useEffect(() => {
+    const controller = new AbortController()
+    const { signal } = controller
+
+    const fetchPrices = async (silent = false) => {
+      if (signal.aborted) return
+      silent ? setSpinning(true) : setLoading(true)
+      setError(false)
+      try {
+        const res  = await fetch(
+          `https://api.binance.com/api/v3/ticker/24hr?symbols=${encodeURIComponent(JSON.stringify(SYMBOLS))}`,
+          { signal }
+        )
+        const data = await res.json()
+        if (!signal.aborted && Array.isArray(data)) {
+          setCoins(data)
+        }
+      } catch (err) {
+        if (err.name === 'AbortError') return
+        if (!signal.aborted) setError(true)
+      } finally {
+        if (!signal.aborted) {
+          setLoading(false)
+          setSpinning(false)
+        }
+      }
+    }
+
+    refreshRef.current = () => fetchPrices(true)
+
+    fetchPrices()
+    const timer = setInterval(() => fetchPrices(true), 15_000)
+
+    return () => {
+      controller.abort()
+      clearInterval(timer)
+      refreshRef.current = null
     }
   }, [])
 
-  useEffect(() => {
-    fetchPrices()
-    const id = setInterval(() => fetchPrices(true), 15_000)
-    return () => clearInterval(id)
-  }, [fetchPrices])
-
   if (loading) return <Skeleton />
+  if (error)   return <ErrorState onRetry={() => refreshRef.current?.()} />
 
   return (
     <>
-      <div className="px-4 pt-4">
-        {/* Row header */}
-        <div className="flex items-center justify-between mb-1.5">
-          <div className="flex items-center gap-3">
-            <span className="text-[10px] text-slate-500 uppercase tracking-widest font-semibold">Монета</span>
-          </div>
-          <div className="flex items-center gap-4">
-            <span className="text-[10px] text-slate-500 uppercase tracking-widest font-semibold">Цена</span>
-            <button
-              onClick={() => fetchPrices(true)}
-              className="p-1.5 rounded-lg text-slate-600 hover:text-slate-300 transition-colors"
-            >
-              <RefreshCw size={12} className={spinning ? 'animate-spin' : ''} />
-            </button>
-          </div>
-        </div>
-
-        {/* Coin rows */}
-        <div className="space-y-0.5">
-          {coins.map((coin, i) => {
-            const meta   = COIN_META[coin.symbol]
-            if (!meta) return null
-            const change = parseFloat(coin.priceChangePercent)
-            const isPos  = change >= 0
-
-            return (
-              <motion.button
-                key={coin.symbol}
-                initial={{ opacity: 0, x: -4 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: i * 0.045, duration: 0.2 }}
-                onClick={() => setSelected(coin)}
-                className="w-full flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-slate-800/60 active:bg-slate-800/80 transition-colors text-left"
-              >
-                <CoinIcon abbr={meta.abbr} color={meta.color} />
-
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-semibold text-white leading-tight">{meta.abbr}</p>
-                  <p className="text-[11px] text-slate-500 mt-0.5">{meta.name}</p>
-                </div>
-
-                <div className="text-right">
-                  <p className="text-sm font-semibold text-white tabular-nums leading-tight">
-                    {formatPrice(coin.lastPrice)}
-                  </p>
-                  <span
-                    className={`inline-flex items-center gap-0.5 mt-0.5 px-1.5 py-0.5 rounded text-[11px] font-semibold tabular-nums ${
-                      isPos
-                        ? 'bg-emerald-500/15 text-emerald-400'
-                        : 'bg-red-500/15 text-red-400'
-                    }`}
-                  >
-                    {isPos ? <TrendingUp size={9} /> : <TrendingDown size={9} />}
-                    {isPos ? '+' : ''}{change.toFixed(2)}%
-                  </span>
-                </div>
-              </motion.button>
-            )
-          })}
+      {/* Column header */}
+      <div className="flex items-center px-4 py-1.5 border-b border-zinc-800 bg-[#0B0E11] sticky top-0 z-10">
+        <span className="flex-1 text-[10px] text-zinc-600 font-medium uppercase tracking-wider">Монета</span>
+        <span className="w-24 text-right text-[10px] text-zinc-600 font-medium uppercase tracking-wider">Цена</span>
+        <div className="w-[72px] flex items-center justify-end gap-1.5">
+          <span className="text-[10px] text-zinc-600 font-medium uppercase tracking-wider">24H%</span>
+          <button
+            onClick={() => refreshRef.current?.()}
+            className="text-zinc-600 hover:text-zinc-300 transition-colors"
+          >
+            <RefreshCw size={10} className={spinning ? 'animate-spin' : ''} />
+          </button>
         </div>
       </div>
 
-      {/* Chart fullscreen overlay */}
+      {/* Coin rows */}
+      <div>
+        {coins.map((coin) => {
+          const meta   = COIN_META[coin.symbol]
+          if (!meta) return null
+          const change = parseFloat(coin.priceChangePercent)
+          const isPos  = change >= 0
+
+          return (
+            <button
+              key={coin.symbol}
+              onClick={() => setSelected(coin)}
+              className="w-full flex items-center gap-2.5 px-4 py-2 border-b border-zinc-800/60 hover:bg-zinc-900 active:bg-zinc-800/80 transition-colors text-left"
+            >
+              <CoinIcon abbr={meta.abbr} icon={meta.icon} />
+
+              <div className="flex-1 min-w-0">
+                <p className="text-[13px] font-semibold text-white leading-tight">
+                  {meta.abbr}
+                  <span className="text-zinc-500 font-normal text-[12px]">/USDT</span>
+                </p>
+                <p className="text-[11px] text-zinc-500 mt-0.5 leading-none">
+                  Vol {formatVolume(coin.quoteVolume)}
+                </p>
+              </div>
+
+              <div className="w-24 text-right">
+                <p className="text-[13px] font-semibold text-white tabular-nums leading-tight">
+                  {formatPrice(coin.lastPrice)}
+                </p>
+                <p className="text-[11px] text-zinc-600 tabular-nums mt-0.5 leading-none">
+                  {formatPrice(coin.prevClosePrice)}
+                </p>
+              </div>
+
+              <div className="w-[72px] text-right">
+                <span
+                  className={`inline-block text-[12px] font-semibold tabular-nums px-1.5 py-0.5 rounded-sm ${
+                    isPos
+                      ? 'bg-[#03A66D]/10 text-[#03A66D]'
+                      : 'bg-[#CF304A]/10 text-[#CF304A]'
+                  }`}
+                >
+                  {isPos ? '↗' : '↘'} {isPos ? '+' : ''}{change.toFixed(2)}%
+                </span>
+              </div>
+            </button>
+          )
+        })}
+      </div>
+
+      {/* Chart overlay */}
       <AnimatePresence>
         {selected && (() => {
           const meta   = COIN_META[selected.symbol]
@@ -143,42 +239,42 @@ export default function Markets() {
           return (
             <motion.div
               key="chart"
-              initial={{ opacity: 0, y: '100%' }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: '100%' }}
-              transition={{ type: 'spring', damping: 30, stiffness: 320 }}
-              className="fixed inset-0 z-50 flex flex-col bg-slate-950"
+              initial={{ y: '100%' }}
+              animate={{ y: 0 }}
+              exit={{ y: '100%' }}
+              transition={{ type: 'spring', damping: 32, stiffness: 340 }}
+              className="fixed inset-0 z-50 flex flex-col bg-[#0B0E11]"
             >
               {/* Chart header */}
-              <div className="flex items-center justify-between px-4 py-3 border-b border-slate-800/70 flex-shrink-0">
-                <div className="flex items-center gap-3">
-                  <CoinIcon abbr={meta?.abbr ?? '?'} color={meta?.color ?? '#888'} />
+              <div className="flex items-center justify-between px-4 py-2.5 border-b border-zinc-800 flex-shrink-0">
+                <div className="flex items-center gap-2.5">
+                  <CoinIcon abbr={meta?.abbr ?? '?'} icon={meta?.icon ?? ''} />
                   <div>
-                    <p className="text-sm font-semibold text-white leading-tight">
-                      {meta?.abbr ?? selected.symbol} / USDT
+                    <p className="text-sm font-bold text-white leading-tight">
+                      {meta?.abbr ?? selected.symbol}
+                      <span className="text-zinc-500 font-normal"> / USDT</span>
                     </p>
                     <div className="flex items-center gap-2 mt-0.5">
                       <span className="text-sm font-bold text-white tabular-nums">
                         {formatPrice(selected.lastPrice)}
                       </span>
-                      <span className={`text-[11px] font-semibold tabular-nums ${isPos ? 'text-emerald-400' : 'text-red-400'}`}>
-                        {isPos ? '+' : ''}{change.toFixed(2)}%
+                      <span className={`text-xs font-semibold tabular-nums ${isPos ? 'text-[#03A66D]' : 'text-[#CF304A]'}`}>
+                        {isPos ? '↗' : '↘'} {isPos ? '+' : ''}{change.toFixed(2)}%
                       </span>
                     </div>
                   </div>
                 </div>
                 <button
                   onClick={() => setSelected(null)}
-                  className="p-2 text-slate-500 hover:text-white transition-colors rounded-lg hover:bg-slate-800"
+                  className="p-1.5 text-zinc-500 hover:text-white transition-colors rounded-md hover:bg-zinc-800"
                 >
-                  <X size={17} />
+                  <X size={16} />
                 </button>
               </div>
 
-              {/* TradingView iframe */}
               <iframe
                 src={`https://s.tradingview.com/widgetembed/?symbol=${encodeURIComponent(`BINANCE:${selected.symbol}`)}&interval=D&theme=dark&style=1&locale=ru&hide_top_toolbar=0&save_image=0`}
-                className="flex-1 w-full border-0 bg-slate-950"
+                className="flex-1 w-full border-0 bg-[#0B0E11]"
                 title={`${selected.symbol} chart`}
                 allow="fullscreen"
               />

@@ -19,48 +19,46 @@ export default function App() {
     if (tg) {
       tg.ready()
       tg.expand()
-      tg.setHeaderColor('#020617')
-      tg.setBackgroundColor('#020617')
+      tg.setHeaderColor('#0B0E11')
+      tg.setBackgroundColor('#0B0E11')
     }
   }, [])
 
   const ActiveComponent = TABS.find(t => t.id === active)?.Component
 
   return (
-    <div className="flex flex-col h-screen bg-slate-950 text-white overflow-hidden select-none">
+    <div className="flex flex-col h-screen bg-[#0B0E11] text-[#EAECEF] overflow-hidden select-none">
 
       {/* Header */}
-      <header className="flex items-center justify-between px-4 pt-4 pb-3 border-b border-slate-800/70 flex-shrink-0">
+      <header className="flex items-center justify-between px-4 py-2.5 border-b border-zinc-800 flex-shrink-0">
         <div className="flex items-center gap-2">
-          <div className="w-6 h-6 rounded-md bg-blue-500/20 flex items-center justify-center">
-            <BarChart2 size={13} className="text-blue-400" />
-          </div>
-          <span className="text-sm font-semibold tracking-wide text-white">Crypto App</span>
+          <BarChart2 size={14} className="text-[#F0B90B]" strokeWidth={2} />
+          <span className="text-[13px] font-bold tracking-wide text-white">CryptoApp</span>
         </div>
         <div className="flex items-center gap-1.5">
-          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-          <span className="text-[11px] text-slate-500 font-medium">Live</span>
+          <span className="w-1.5 h-1.5 rounded-full bg-[#03A66D]" />
+          <span className="text-[11px] text-zinc-500 font-medium">Live</span>
         </div>
       </header>
 
       {/* Main */}
-      <main className="flex-1 overflow-y-auto overflow-x-hidden pb-16">
+      <main className="flex-1 overflow-y-auto overflow-x-hidden pb-[52px] scrollbar-none">
         <AnimatePresence mode="wait">
           <motion.div
             key={active}
-            initial={{ opacity: 0, y: 5 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -5 }}
-            transition={{ duration: 0.13, ease: 'easeOut' }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.08 }}
           >
             {ActiveComponent && <ActiveComponent />}
           </motion.div>
         </AnimatePresence>
       </main>
 
-      {/* Bottom nav */}
+      {/* Bottom nav — flat, 1px top border, active indicator as top stripe */}
       <nav
-        className="fixed bottom-0 left-0 right-0 flex border-t border-slate-800/70 bg-slate-950/96 backdrop-blur-md"
+        className="fixed bottom-0 left-0 right-0 flex border-t border-zinc-800 bg-[#0B0E11]"
         style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
       >
         {TABS.map(({ id, label, Icon }) => {
@@ -69,14 +67,18 @@ export default function App() {
             <button
               key={id}
               onClick={() => setActive(id)}
-              className="flex-1 flex flex-col items-center justify-center py-2.5 gap-1 transition-colors duration-150"
+              className="flex-1 flex flex-col items-center justify-center py-2.5 gap-0.5 relative transition-colors duration-100"
             >
+              {/* Active top indicator stripe */}
+              {on && (
+                <span className="absolute top-0 left-1/4 right-1/4 h-[2px] bg-[#F0B90B] rounded-b-sm" />
+              )}
               <Icon
-                size={19}
-                strokeWidth={on ? 2 : 1.5}
-                className={on ? 'text-blue-400' : 'text-slate-600'}
+                size={17}
+                strokeWidth={on ? 2.2 : 1.6}
+                className={on ? 'text-[#F0B90B]' : 'text-zinc-600'}
               />
-              <span className={`text-[10px] font-medium tracking-wide transition-colors ${on ? 'text-blue-400' : 'text-slate-600'}`}>
+              <span className={`text-[10px] font-medium ${on ? 'text-[#F0B90B]' : 'text-zinc-600'}`}>
                 {label}
               </span>
             </button>

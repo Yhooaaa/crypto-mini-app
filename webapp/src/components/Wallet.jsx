@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import { motion } from 'framer-motion'
 import { ArrowDown, ArrowUp, ArrowLeftRight, Eye, EyeOff, ChevronRight } from 'lucide-react'
 
 const ASSETS = [
@@ -12,16 +11,16 @@ const ASSETS = [
 const TOTAL = ASSETS.reduce((s, a) => s + a.usd, 0)
 
 const ACTIONS = [
-  { label: 'Ввод',    Icon: ArrowDown,       cls: 'text-emerald-400', bg: 'bg-emerald-500/10 border-emerald-500/15' },
-  { label: 'Вывод',   Icon: ArrowUp,         cls: 'text-red-400',     bg: 'bg-red-500/10 border-red-500/15'         },
-  { label: 'Перевод', Icon: ArrowLeftRight,  cls: 'text-blue-400',    bg: 'bg-blue-500/10 border-blue-500/15'       },
+  { label: 'Ввод',    Icon: ArrowDown      },
+  { label: 'Вывод',   Icon: ArrowUp        },
+  { label: 'Перевод', Icon: ArrowLeftRight  },
 ]
 
 function AssetIcon({ symbol, color }) {
   return (
     <div
-      className="w-9 h-9 rounded-full flex items-center justify-center text-[11px] font-bold flex-shrink-0"
-      style={{ background: `${color}1a`, border: `1.5px solid ${color}30` }}
+      className="w-8 h-8 rounded-full flex items-center justify-center text-[10px] font-bold flex-shrink-0"
+      style={{ background: `${color}18`, border: `1px solid ${color}28` }}
     >
       <span style={{ color }}>{symbol.slice(0, 3)}</span>
     </div>
@@ -39,98 +38,84 @@ export default function Wallet() {
     <div className="px-4 pt-4">
 
       {/* Balance card */}
-      <motion.div
-        initial={{ opacity: 0, y: 6 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="bg-slate-900/60 border border-slate-800/80 rounded-2xl px-5 py-5 mb-4"
-      >
-        <div className="flex items-center justify-between mb-3">
-          <span className="text-[10px] text-slate-500 uppercase tracking-widest font-semibold">
+      <div className="bg-[#1E2026] border border-[#2B2F36] rounded-xl px-4 py-4 mb-3">
+        <div className="flex items-center justify-between mb-2">
+          <span className="text-[10px] text-[#848E9C] font-medium uppercase tracking-widest">
             Общий баланс
           </span>
           <button
             onClick={() => setHidden(h => !h)}
-            className="text-slate-600 hover:text-slate-400 transition-colors p-1"
+            className="text-[#848E9C] hover:text-[#EAECEF] transition-colors"
           >
             {hidden ? <EyeOff size={14} /> : <Eye size={14} />}
           </button>
         </div>
 
-        <div className="flex items-end gap-2">
-          <span className="text-[32px] font-bold text-white tracking-tight leading-none">
-            {hidden ? '••••••' : `$${fmt(TOTAL)}`}
-          </span>
+        <div className="text-[28px] font-bold text-[#EAECEF] tracking-tight leading-none">
+          {hidden ? '••••••' : `$${fmt(TOTAL)}`}
         </div>
 
-        <div className="flex items-center gap-1.5 mt-2">
-          <span className="text-xs text-emerald-400 font-medium tabular-nums">+$12.40 (3.2%)</span>
-          <span className="text-[11px] text-slate-600">за 24ч</span>
+        <div className="flex items-center gap-1.5 mt-1.5">
+          <span className="text-xs text-[#03A66D] font-medium tabular-nums">+$12.40 (+3.2%)</span>
+          <span className="text-[11px] text-[#848E9C]">за 24ч</span>
         </div>
-      </motion.div>
+      </div>
 
       {/* Quick actions */}
-      <div className="flex justify-around mb-5">
-        {ACTIONS.map(({ label, Icon, cls, bg }, i) => (
-          <motion.button
+      <div className="grid grid-cols-3 gap-2 mb-4">
+        {ACTIONS.map(({ label, Icon }) => (
+          <button
             key={label}
-            initial={{ opacity: 0, y: 6 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.05 + i * 0.05 }}
-            className="flex flex-col items-center gap-2 active:scale-95 transition-transform"
+            className="flex flex-col items-center gap-1.5 py-3 bg-[#1E2026] border border-[#2B2F36] rounded-xl hover:bg-[#2B2F36] active:bg-[#2B2F36] transition-colors"
           >
-            <div className={`w-12 h-12 rounded-full border flex items-center justify-center ${bg}`}>
-              <Icon size={17} className={cls} />
-            </div>
-            <span className="text-[11px] text-slate-400 font-medium">{label}</span>
-          </motion.button>
+            <Icon size={16} className="text-[#EAECEF]" />
+            <span className="text-[11px] text-[#848E9C] font-medium">{label}</span>
+          </button>
         ))}
       </div>
 
-      {/* Divider */}
-      <div className="flex items-center justify-between mb-2.5">
-        <span className="text-[10px] text-slate-500 uppercase tracking-widest font-semibold">Мои активы</span>
-        <button className="flex items-center gap-0.5 text-[11px] text-slate-500 hover:text-slate-300 transition-colors">
+      {/* Assets header */}
+      <div className="flex items-center justify-between py-2 border-b border-[#2B2F36] mb-0">
+        <span className="text-[10px] text-[#848E9C] font-medium uppercase tracking-widest">Мои активы</span>
+        <button className="flex items-center gap-0.5 text-[11px] text-[#848E9C] hover:text-[#EAECEF] transition-colors">
           Все <ChevronRight size={11} />
         </button>
       </div>
 
       {/* Asset rows */}
-      <div className="space-y-0.5 pb-4">
-        {ASSETS.map((asset, i) => {
-          const pos = asset.change >= 0
+      <div className="pb-4">
+        {ASSETS.map((asset) => {
+          const pos    = asset.change >= 0
           const balStr = asset.balance >= 0.01
             ? fmt(asset.balance, 4)
             : asset.balance.toFixed(6)
 
           return (
-            <motion.div
+            <div
               key={asset.symbol}
-              initial={{ opacity: 0, x: -4 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.08 + i * 0.06 }}
-              className="flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-slate-800/50 active:bg-slate-800/70 transition-colors cursor-pointer"
+              className="flex items-center gap-3 py-2.5 border-b border-[#2B2F36]/60 hover:bg-[#1E2026] active:bg-[#2B2F36] transition-colors cursor-pointer -mx-4 px-4"
             >
               <AssetIcon symbol={asset.symbol} color={asset.color} />
 
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-semibold text-white leading-tight">{asset.symbol}</p>
-                <p className="text-[11px] text-slate-500 mt-0.5">{asset.name}</p>
+                <p className="text-sm font-semibold text-[#EAECEF] leading-tight">{asset.symbol}</p>
+                <p className="text-[11px] text-[#848E9C] mt-0.5">{asset.name}</p>
               </div>
 
               <div className="text-right">
-                <p className="text-sm font-semibold text-white tabular-nums leading-tight">
+                <p className="text-sm font-semibold text-[#EAECEF] tabular-nums leading-tight">
                   {hidden ? '•••' : balStr}
                 </p>
                 <div className="flex items-center justify-end gap-2 mt-0.5">
-                  <span className="text-[11px] text-slate-500 tabular-nums">
+                  <span className="text-[11px] text-[#848E9C] tabular-nums">
                     {hidden ? '•••' : `$${fmt(asset.usd)}`}
                   </span>
-                  <span className={`text-[10px] font-semibold tabular-nums ${pos ? 'text-emerald-400' : 'text-red-400'}`}>
+                  <span className={`text-[11px] font-semibold tabular-nums ${pos ? 'text-[#03A66D]' : 'text-[#CF304A]'}`}>
                     {pos ? '+' : ''}{asset.change.toFixed(2)}%
                   </span>
                 </div>
               </div>
-            </motion.div>
+            </div>
           )
         })}
       </div>
