@@ -23,7 +23,7 @@ const COIN_META = {
   TONUSDT: {
     name: 'Toncoin',
     abbr: 'TON',
-    icon: 'https://cdn.jsdelivr.net/gh/atomicwallet/crypto-assets@master/assets/logos/ton-ton.png',
+    icon: 'https://cryptologos.cc/logos/toncoin-ton-logo.png',
   },
   BNBUSDT: {
     name: 'BNB',

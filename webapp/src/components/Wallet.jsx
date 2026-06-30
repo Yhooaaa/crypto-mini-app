@@ -4,7 +4,7 @@ import { ArrowDown, ArrowUp, ArrowLeftRight, Eye, EyeOff, ChevronRight } from 'l
 const ASSETS = [
   { symbol: 'USDT', name: 'Tether',   balance: 850.00,   usd: 850.00,  color: '#26A17B', change: +0.01, icon: 'https://assets.coingecko.com/coins/images/325/large/Tether.png' },
   { symbol: 'BTC',  name: 'Bitcoin',  balance: 0.004213, usd: 285.50,  color: '#F7931A', change: +2.34, icon: 'https://assets.coingecko.com/coins/images/1/large/bitcoin.png' },
-  { symbol: 'TON',  name: 'Toncoin',  balance: 45.32,    usd: 110.00,  color: '#0098EA', change: -1.12, icon: 'https://cdn.jsdelivr.net/gh/atomicwallet/crypto-assets@master/assets/logos/ton-ton.png' },
+  { symbol: 'TON',  name: 'Toncoin',  balance: 45.32,    usd: 110.00,  color: '#0098EA', change: -1.12, icon: 'https://cryptologos.cc/logos/toncoin-ton-logo.png' },
   { symbol: 'ETH',  name: 'Ethereum', balance: 0.01840,  usd: 58.20,   color: '#627EEA', change: +1.08, icon: 'https://assets.coingecko.com/coins/images/279/large/ethereum.png' },
 ]
 
