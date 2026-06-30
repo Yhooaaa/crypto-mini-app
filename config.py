@@ -6,6 +6,7 @@ load_dotenv()
 BOT_TOKEN: str = os.environ["BOT_TOKEN"]
 WEBAPP_URL: str = os.getenv("WEBAPP_URL", "https://example.com")
 DB_PATH: str    = os.getenv("DB_PATH", "fittex.db")
+API_PORT: int   = int(os.getenv("API_PORT", "8080"))
 
 TRANSLATIONS: dict[str, dict[str, str]] = {
     "en": {

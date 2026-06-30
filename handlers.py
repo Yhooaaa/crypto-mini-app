@@ -38,13 +38,13 @@ def language_keyboard() -> InlineKeyboardMarkup:
     )
 
 
-def main_menu_keyboard(lang: str) -> ReplyKeyboardMarkup:
+def main_menu_keyboard(lang: str, user_id: int) -> ReplyKeyboardMarkup:
     return ReplyKeyboardMarkup(
         keyboard=[
             [
                 KeyboardButton(
                     text=t(lang, "open_app"),
-                    web_app=WebAppInfo(url=f"{WEBAPP_URL}?lang={lang}"),
+                    web_app=WebAppInfo(url=f"{WEBAPP_URL}?lang={lang}&user_id={user_id}"),
                 )
             ],
             [
@@ -69,7 +69,7 @@ async def cmd_start(message: Message) -> None:
     else:
         await message.answer(
             t(user["language"], "main_menu"),
-            reply_markup=main_menu_keyboard(user["language"]),
+            reply_markup=main_menu_keyboard(user["language"], message.from_user.id),
         )
 
 
@@ -91,7 +91,7 @@ async def cb_select_language(callback: CallbackQuery) -> None:
     await callback.message.edit_text(t(lang, "language_set"))
     await callback.message.answer(
         t(lang, "main_menu"),
-        reply_markup=main_menu_keyboard(lang),
+        reply_markup=main_menu_keyboard(lang, callback.from_user.id),
     )
     await callback.answer()
 

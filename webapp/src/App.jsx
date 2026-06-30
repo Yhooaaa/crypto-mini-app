@@ -9,6 +9,11 @@ import { detectLang, getT } from './i18n'
 export default function App() {
   const [active, setActive] = useState('markets')
   const [lang]   = useState(detectLang)
+  const [userId] = useState(() => {
+    const p = new URLSearchParams(window.location.search)
+    const v = p.get('user_id')
+    return v && /^\d+$/.test(v) ? parseInt(v, 10) : null
+  })
 
   const t = getT(lang)
 
@@ -55,7 +60,7 @@ export default function App() {
             exit={{ opacity: 0 }}
             transition={{ duration: 0.08 }}
           >
-            {ActiveComponent && <ActiveComponent lang={lang} />}
+            {ActiveComponent && <ActiveComponent lang={lang} userId={userId} />}
           </motion.div>
         </AnimatePresence>
       </main>
