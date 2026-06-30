@@ -23,7 +23,7 @@ const COIN_META = {
   TONUSDT: {
     name: 'Toncoin',
     abbr: 'TON',
-    icon: 'https://assets.coingecko.com/coins/images/17980/large/ton_token.png',
+    icon: 'https://cdn.jsdelivr.net/gh/atomicwallet/crypto-assets@master/assets/logos/ton-ton.png',
   },
   BNBUSDT: {
     name: 'BNB',
